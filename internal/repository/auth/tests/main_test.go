@@ -5,14 +5,19 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/pkg/errors"
+	"github.com/pressly/goose/v3"
+	"github.com/stretchr/testify/require"
 	dbc "github.com/tlb_katia/auth/internal/client/db"
 	"github.com/tlb_katia/auth/internal/client/db/pg"
 	_ "github.com/tlb_katia/auth/internal/client/db/pg"
+	"github.com/tlb_katia/auth/internal/model"
+	"github.com/tlb_katia/auth/internal/repository"
+	"github.com/tlb_katia/auth/internal/repository/auth"
 	"log"
 	"net/url"
 	"testing"
@@ -24,8 +29,8 @@ const testPassword = "password"
 const testHost = "localhost"
 const testDbName = "test_db"
 
-var db *sql.DB
 var dbClient dbc.Client
+var repo repository.AuthRepository
 
 func TestMain(m *testing.M) {
 	pool, resource := initDB()
@@ -43,9 +48,9 @@ func initDB() (*dockertest.Pool, *dockertest.Resource) {
 		Repository: "postgres",
 		Tag:        "14",
 		Env: []string{
-			fmt.Sprintf("POSTGRES_USER=my_user=%s", testUser),
-			fmt.Sprintf("POSTGRES_PASSWORDr=%s", testPassword),
-			fmt.Sprintf("POSTGRES_DBr=%s", testDbName),
+			fmt.Sprintf("POSTGRES_USER=%s", testUser),
+			fmt.Sprintf("POSTGRES_PASSWORD=%s", testPassword),
+			fmt.Sprintf("POSTGRES_DB=%s", testDbName),
 		},
 	}, func(config *docker.HostConfig) {
 		config.AutoRemove = true // Удаление контейнера после завершения тестов
@@ -58,52 +63,33 @@ func initDB() (*dockertest.Pool, *dockertest.Resource) {
 
 	pool.MaxWait = 30 * time.Second
 	if err := pool.Retry(func() error {
-		db, err = sql.Open("postgres", dsn.String())
+		dbClient, err = pg.New(context.Background(), dsn.String())
 		if err != nil {
 			return err
 		}
-		return db.Ping()
+		return dbClient.DB().Ping(context.Background())
 	}); err != nil {
 		log.Fatalf("Could not connect to database: %s", err)
 	}
 
-	configurePool()
-	initMigrations()
-	DBClient(dsn.String())
+	initMigrations(dsn.String())
+	connectToRepoitory()
 
 	return pool, resource
 }
 
-func initMigrations() {
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
+func initMigrations(dsn string) {
+	dbCon, err := sql.Open("postgres", dsn)
 	if err != nil {
-		log.Fatalf("unable to create pg driver for migration: %v", err)
+		log.Fatalf("Could not connect to database for migrations: %s", err)
 	}
 
-	migrator, err := migrate.NewWithDatabaseInstance(
-		"file:///home/katia/Desktop/auth/postgres/migrations",
-		testDbName,
-		driver)
-	if err != nil {
-		log.Fatalf("unable to create migration: %v", err)
-	}
-
-	defer func() {
-		migrator.Close()
-	}()
-
-	if err := migrator.Up(); err != nil {
+	if err := goose.Up(dbCon, "../../../../postgres/migrations/"); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
 			log.Printf("Migrations are up to date. There is nothing to update: %v", err)
 		}
 		log.Fatalf("unable to apply migrations %v", err)
 	}
-}
-
-func configurePool() {
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(5)
-	db.SetConnMaxLifetime(30 * time.Minute)
 }
 
 func getPgDSN(port string) *url.URL {
@@ -126,15 +112,8 @@ func closeDB(pool *dockertest.Pool, resource *dockertest.Resource) {
 	}
 }
 
-func DBClient(DSN string) {
-	ctx := context.Background()
-	if dbClient == nil {
-		client, err := pg.New(ctx, DSN)
-		if err != nil {
-
-		}
-		dbClient = client
-	}
+func connectToRepoitory() {
+	repo = auth.NewRepository(dbClient)
 }
 
 /*
@@ -142,5 +121,65 @@ test functions start here
 */
 
 func TestCreate(t *testing.T) {
+	ctx := context.Background()
+
+	tests := []struct {
+		name      string
+		user      *model.UserInfo
+		expectErr bool
+	}{
+		{
+			name: "Valid user",
+			user: &model.UserInfo{
+				Name:  "John Doe",
+				Email: "john.doe@example.com",
+				Role:  1,
+			},
+			expectErr: false,
+		},
+		{
+			name: "Duplicate email",
+			user: &model.UserInfo{
+				Name:  "Jane Doe",
+				Email: "john.doe@example.com", // Повтор email
+				Role:  0,
+			},
+			expectErr: true,
+		},
+		{
+			name: "Missing name",
+			user: &model.UserInfo{
+				Name:  "",
+				Email: "jane.doe@example.com",
+				Role:  1,
+			},
+			expectErr: true,
+		},
+		{
+			name: "Invalid role",
+			user: &model.UserInfo{
+				Name:  "Jack Doe",
+				Email: "jack.doe@example.com",
+				Role:  9999, // Несуществующий roleID
+			},
+			expectErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			userId, resErr := repo.Create(ctx, tt.user)
+			if tt.expectErr {
+				require.Error(t, resErr, "Ожидалась ошибка, но её не было")
+			} else {
+				require.NoError(t, resErr, "Неожиданная ошибка при создании пользователя")
+				require.NotZero(t, userId, "Идентификатор пользователя должен быть больше 0")
+			}
+		})
+	}
 
 }
