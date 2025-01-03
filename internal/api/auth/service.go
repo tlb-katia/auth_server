@@ -1,4 +1,4 @@
-package api
+package auth
 
 import (
 	"github.com/tlb_katia/auth/internal/service"

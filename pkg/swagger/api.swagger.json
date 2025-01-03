@@ -1,0 +1,170 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "auth.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AuthV1"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/auth/v1/create": {
+      "post": {
+        "operationId": "AuthV1_Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/auth_v1CreateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth_v1CreateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthV1"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "auth_v1CreateRequest": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/auth_v1UserInfo"
+        }
+      }
+    },
+    "auth_v1CreateResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "auth_v1GetResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/auth_v1User"
+        }
+      }
+    },
+    "auth_v1Role": {
+      "type": "string",
+      "enum": [
+        "USER_ROLE",
+        "ADMIN_ROLE"
+      ],
+      "default": "USER_ROLE"
+    },
+    "auth_v1User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "user": {
+          "$ref": "#/definitions/auth_v1UserInfo"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "auth_v1UserInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "passwordConfirm": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/definitions/auth_v1Role"
+        }
+      }
+    },
+    "auth_v1UserUpdate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

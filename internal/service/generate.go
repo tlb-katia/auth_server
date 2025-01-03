@@ -1,3 +1,3 @@
-package repository
+package service
 
-//go:generate ../../bin/mockery --name AuthRepository --dir . --output ./mocks --filename AuthRepository_mockery.go
+//go:generate ../../bin/mockery --name AuthService --dir . --output ./mocks --filename AuthService_mockery.go

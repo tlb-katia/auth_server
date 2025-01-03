@@ -1,0 +1,27 @@
+mode: count
+github.com/tlb_katia/auth/internal/api/auth/create.go:9.115,12.16 2 0
+github.com/tlb_katia/auth/internal/api/auth/create.go:12.16,14.3 1 0
+github.com/tlb_katia/auth/internal/api/auth/create.go:15.2,17.8 1 0
+github.com/tlb_katia/auth/internal/api/auth/delete.go:9.104,11.16 2 0
+github.com/tlb_katia/auth/internal/api/auth/delete.go:11.16,13.3 1 0
+github.com/tlb_katia/auth/internal/api/auth/delete.go:14.2,14.28 1 0
+github.com/tlb_katia/auth/internal/api/auth/get.go:9.106,11.16 2 0
+github.com/tlb_katia/auth/internal/api/auth/get.go:11.16,13.3 1 0
+github.com/tlb_katia/auth/internal/api/auth/get.go:14.2,16.8 1 0
+github.com/tlb_katia/auth/internal/api/auth/service.go:13.73,17.2 1 0
+github.com/tlb_katia/auth/internal/api/auth/update.go:10.104,12.16 2 0
+github.com/tlb_katia/auth/internal/api/auth/update.go:12.16,14.3 1 0
+github.com/tlb_katia/auth/internal/api/auth/update.go:15.2,15.28 1 0
+github.com/tlb_katia/auth/internal/api/auth/create.go:9.115,12.16 2 10
+github.com/tlb_katia/auth/internal/api/auth/create.go:12.16,14.3 1 5
+github.com/tlb_katia/auth/internal/api/auth/create.go:15.2,17.8 1 5
+github.com/tlb_katia/auth/internal/api/auth/delete.go:9.104,11.16 2 10
+github.com/tlb_katia/auth/internal/api/auth/delete.go:11.16,13.3 1 5
+github.com/tlb_katia/auth/internal/api/auth/delete.go:14.2,14.28 1 5
+github.com/tlb_katia/auth/internal/api/auth/get.go:9.106,11.16 2 10
+github.com/tlb_katia/auth/internal/api/auth/get.go:11.16,13.3 1 5
+github.com/tlb_katia/auth/internal/api/auth/get.go:14.2,16.8 1 5
+github.com/tlb_katia/auth/internal/api/auth/service.go:13.73,17.2 1 40
+github.com/tlb_katia/auth/internal/api/auth/update.go:10.104,12.16 2 10
+github.com/tlb_katia/auth/internal/api/auth/update.go:12.16,14.3 1 5
+github.com/tlb_katia/auth/internal/api/auth/update.go:15.2,15.28 1 5

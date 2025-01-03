@@ -3,19 +3,22 @@
 
 CREATE TABLE roles (
                        id SERIAL PRIMARY KEY,
-                       name VARCHAR(50) NOT NULL
+                       role_name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE users (
-                       id SERIAL PRIMARY KEY,
+                       id BIGSERIAL PRIMARY KEY,
                        name VARCHAR(100) NOT NULL,
                        email VARCHAR(150) UNIQUE NOT NULL,
-                       password_hash VARCHAR(255) NOT NULL,
-                       role_id INT NOT NULL,
-                       FOREIGN KEY (role_id) REFERENCES roles (id)
+                       password_hash VARCHAR(255) ,
+                       role_id INT DEFAULT 1 NOT NULL,
+                       FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE SET DEFAULT,
+                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                       updated_at TIMESTAMP NULL -- write a trigger to update time automatically
 );
 
 
+INSERT INTO roles (role_name) VALUES ('admin'), ('user');
 
 -- +goose StatementEnd
 
