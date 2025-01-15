@@ -16,6 +16,39 @@
     "application/json"
   ],
   "paths": {
+    "/auth/v1": {
+      "patch": {
+        "operationId": "AuthV1_Update",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth_v1UpdateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthV1"
+        ]
+      }
+    },
     "/auth/v1/create": {
       "post": {
         "operationId": "AuthV1_Create",
@@ -41,6 +74,67 @@
             "schema": {
               "$ref": "#/definitions/auth_v1CreateRequest"
             }
+          }
+        ],
+        "tags": [
+          "AuthV1"
+        ]
+      }
+    },
+    "/auth/v1/{id}": {
+      "get": {
+        "operationId": "AuthV1_Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/auth_v1GetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AuthV1"
+        ]
+      },
+      "delete": {
+        "operationId": "AuthV1_Delete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
           }
         ],
         "tags": [
@@ -82,6 +176,14 @@
         "ADMIN_ROLE"
       ],
       "default": "USER_ROLE"
+    },
+    "auth_v1UpdateRequest": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/auth_v1UserUpdate"
+        }
+      }
     },
     "auth_v1User": {
       "type": "object",
